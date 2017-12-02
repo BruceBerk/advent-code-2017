@@ -18,18 +18,15 @@ def advInput(day):
     return open(filename)
 
 def sumMatchingHalfwayDigits(str):
-    """Process a sequence of digits composing a sum of those that match their neighbor"""
+    """Process a sequence of digits composing a sum of those that match their neighbor half a span away"""
     print('Summing ', str)
 
-    halfdist = len(str) // 2
+    span = len(str) // 2
     summed = 0
     if len(str) > 0:
-        firstDigit = str[0]
-        prevDigit = str[-1]
-        for x in str:
-            if x == prevDigit:
-                summed += int(x)
-            prevDigit = x
+        for num in range(span):
+            if str[num] == str[num+span]:
+                summed += (int(str[num]) * 2)
 
     return summed
 
@@ -43,7 +40,5 @@ for k, v in testCases.items():
 
 f = advInput(1)
 s = f.read()
-
 ans = sumMatchingHalfwayDigits(s)
-
 print(ans)
