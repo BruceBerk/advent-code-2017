@@ -1,4 +1,4 @@
-# Advent of Code 2017 3.2
+# Advent of Code 2017 4.1
 # High Entropy Passphrase
 #
 # Bruce Berkowicz
