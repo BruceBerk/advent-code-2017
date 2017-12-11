@@ -26,8 +26,28 @@ Once a square is written, its value does not change. Therefore, the first few sq
 What is the first value written that is larger than your puzzle input?
 
 Your puzzle input is still 265149.
+Answer is 266330
 
 """
+
+def box_sum(box, i, j):
+    """Sum the 8 adjacent squares for a given box location"""
+    accum = 0
+    box_side = len(box)
+
+    row = i - 1
+    while row <= (i+1):
+        col = j - 1
+        while col <= (j+1):
+            if row != i or col != j:
+                if row >= 0 and row < box_side and col >= 0 and col < box_side:
+                    accum += box[row][col]
+
+            col += 1
+
+        row += 1
+
+    return accum
 
 def spiral_accumulator(limit):
     """Build up the spiral memory, accumulating values until we pass the limit. Return the passed value"""
@@ -41,9 +61,55 @@ def spiral_accumulator(limit):
     m[1][0] = 1
     m[1][1] = 1
 
-    mem_size += 2
-    n = [[0 for i in range(mem_size)] for j in range(mem_size)]
+    while accum == 0:
+        # increase to the next bigger box
+        mem_size += 2
+        n = [[0 for i in range(mem_size)] for j in range(mem_size)]
 
+        # copy the original box
+        for i in range(mem_size-2):
+            for j in range(mem_size-2):
+                n[i+1][j+1] = m[i][j]
+
+        # fill in the border squares
+        m = n
+
+        # down the left side
+        for r in range(1, mem_size):
+            amt = box_sum(m, r, 0)
+            m[r][0] = amt
+            if amt > limit:
+                accum = amt
+                break
+
+        # across the bottom
+        if accum == 0:
+            for c in range(mem_size):
+                amt = box_sum(m, mem_size-1, c)
+                m[mem_size-1][c] = amt
+                if amt > limit:
+                    accum = amt
+                    break
+
+        # up the right side
+        if accum == 0:
+            for r in range(mem_size-1, -1, -1):
+                amt = box_sum(m, r, mem_size-1)
+                m[r][mem_size-1] = amt
+                if amt > limit:
+                    accum = amt
+                    break
+
+        # back across the top
+        if accum == 0:
+            for c in range(mem_size-1, -1, -1):
+                amt = box_sum(m, 0, c)
+                m[0][c] = amt
+                if amt > limit:
+                    accum = amt
+                    break
+
+    print('   mem_size is', mem_size)
     return accum
 
 my_input = 265149
