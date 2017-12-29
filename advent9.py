@@ -60,11 +60,28 @@ What is the total score for all groups in your input?
 
 Answer: 14190
 
+--- Part Two ---
+
+Now, you're ready to remove the garbage.
+
+To prove you've removed it, you need to count all of the characters within the garbage. The leading and trailing < and
+> don't count, nor do any canceled characters or the ! doing the canceling.
+
+<>, 0 characters.
+<random characters>, 17 characters.
+<<<<>, 3 characters.
+<{!>}>, 2 characters.
+<!!>, 0 characters.
+<!!!>>, 0 characters.
+<{o"i!a,<{i<a>, 10 characters.
+How many non-canceled characters are within the garbage in your puzzle input?
 """
 
 def score_stream(filename: str) -> int:
-    """Process a stream and calculate its score"""
+    """Process a stream and calculate its score
+    For part 2 - count the garbage characters, so return a tuple"""
     score = 0
+    garbage_count = 0
 
     with open(filename) as f:
         data = f.read()
@@ -92,8 +109,10 @@ def score_stream(filename: str) -> int:
                         skip_char = True
                     elif ch == ">":
                         in_garbage = False
+                    else:
+                        garbage_count += 1
 
-    return score
+    return (score, garbage_count)
 
 
 def run_test():
@@ -104,15 +123,33 @@ def run_test():
         # process each test file
         filename = 'data/test9-{}.txt'.format(i)
         score = score_stream(filename)
-        if score == test_answers[i]:
+        if score[0] == test_answers[i]:
             result = "Pass. "
         else:
             result = "Fail. "
 
-        print(result, "Expected score is", test_answers[i], "and actual score is", score)
+        print(result, "Expected score is", test_answers[i], "and actual score is", score[0])
 
+
+def test_garbage_count():
+    """Test the garbage counting code against 7 files"""
+
+    test_answers = [0, 17, 3, 2, 0, 0, 10]
+    for i in range(7):
+        filename = 'data/test92-{}.txt'.format(i)
+
+        score = score_stream(filename)
+        if score[1] == test_answers[i]:
+            result = "Pass. "
+        else:
+            result = "Fail. "
+
+        print("Garbage time.", result, "Expected score is", test_answers[i], "and actual score is", score[1])
 
 run_test()
 
+test_garbage_count()
+
 score = score_stream('data/input9.txt')
-print('The score is', score)
+print('The score is', score[0])
+print('   and the garbage count is', score[1])
