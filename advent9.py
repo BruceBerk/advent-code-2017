@@ -75,6 +75,8 @@ To prove you've removed it, you need to count all of the characters within the g
 <!!!>>, 0 characters.
 <{o"i!a,<{i<a>, 10 characters.
 How many non-canceled characters are within the garbage in your puzzle input?
+
+Answer: 7053
 """
 
 def score_stream(filename: str) -> int:
