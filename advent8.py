@@ -32,9 +32,18 @@ to tell you what all the registers are named, and leaves that to you to determin
 What is the largest value in any register after completing the instructions in your puzzle input?
 
 Answer: 5946
+
+--- Part Two ---
+
+To be safe, the CPU also needs to know the highest value held in any register during this process so that it can
+decide how much memory to allocate to these operations. For example, in the above instructions, the highest value ever
+held was 10 (in register c after the third instruction was evaluated).
+
+Answer: 6026
 """
 
-def process_line(registers: dict, items: list) -> None:
+def process_line(registers: dict, items: list) -> int:
+    """Process the instruction and return the updated value"""
     rval = registers[items[0]]
     amt = int(items[2])
     if items[1].lower() == 'dec':
@@ -43,11 +52,13 @@ def process_line(registers: dict, items: list) -> None:
         rval += amt
 
     registers[items[0]] = rval
+    return rval
 
 
 def run_program(filename: str) -> dict:
     """Run the program in the file and return a dictionary of register names and values"""
     registers = {}
+    max_temp_val = -999999
 
     with open(filename) as f:
         # strip trailing newline off each line
@@ -68,18 +79,31 @@ def run_program(filename: str) -> dict:
                 register_to_check = registers[items[4]]
 
                 if oper == '==' and register_to_check == chk_val:
-                    process_line(registers, items)
+                    amt = process_line(registers, items)
+                    if amt > max_temp_val:
+                        max_temp_val = amt
                 elif oper == '<' and register_to_check < chk_val:
-                    process_line(registers, items)
+                    amt = process_line(registers, items)
+                    if amt > max_temp_val:
+                        max_temp_val = amt
                 elif oper == '>' and register_to_check > chk_val:
-                    process_line(registers, items)
+                    amt = process_line(registers, items)
+                    if amt > max_temp_val:
+                        max_temp_val = amt
                 elif oper == '!=' and register_to_check != chk_val:
-                    process_line(registers, items)
+                    amt = process_line(registers, items)
+                    if amt > max_temp_val:
+                        max_temp_val = amt
                 elif oper == '<=' and register_to_check <= chk_val:
-                    process_line(registers, items)
+                    amt = process_line(registers, items)
+                    if amt > max_temp_val:
+                        max_temp_val = amt
                 elif oper == '>=' and register_to_check >= chk_val:
-                    process_line(registers, items)
+                    amt = process_line(registers, items)
+                    if amt > max_temp_val:
+                        max_temp_val = amt
 
+    print('The maximum stored value is', max_temp_val)
     return registers
 
 
@@ -88,7 +112,7 @@ def find_greatest_register(registers: dict) -> int:
     max_val = None
 
     for regname, regval in registers.items():
-        print(regname)
+        #print(regname)
         if max_val == None:
             max_val = regval
         elif regval > max_val:
