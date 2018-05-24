@@ -48,6 +48,21 @@ How many programs are in the group that contains program ID 0?
 
 Answer: 128
 
+--- Part Two ---
+
+There are more programs than just the ones in the group containing program ID 0. The rest of them have no way of
+reaching that group, and still might have no way of reaching each other.
+
+A group is a collection of programs that can all communicate via pipes either directly or indirectly. The programs you
+identified just a moment ago are all part of the same group. Now, they would like you to determine the total number of
+groups.
+
+In the example above, there were 2 groups: one consisting of programs 0,2,3,4,5,6, and the other consisting solely of
+program 1.
+
+How many groups are there in total?
+
+Answer:
 """
 import re
 
@@ -94,6 +109,41 @@ def count_zero_connections(pipes: dict) -> int:
     return len(zconnect)
 
 
+def count_groups(pipes: dict) -> int:
+    """Count the distinct communication groups in the set of pipes"""
+    gcount = 0
+
+    # keep track of the pipes we have not yet visted
+    unvisited = set()
+    for k in pipes:
+        unvisited.add(k)
+
+    while len(unvisited) > 0:
+        gcount += 1
+
+        to_visit = set()
+        have_visited = set()
+
+        to_visit.add(unvisited.pop())
+
+        while len(to_visit) > 0:
+            node = to_visit.pop()
+            # make sure we have not visited this node before
+            if node not in have_visited:
+                # keep track of the nodes we have already visited
+                have_visited.add(node)
+
+                # this is no longer unvisited
+                if node in unvisited:
+                    unvisited.remove(node)
+
+                # the children of this node may need to be visited
+                for child in pipes[node]:
+                    to_visit.add(child)
+
+    return gcount
+
+
 pipes = process_file('data/test12.txt')
 for k, v in pipes.items():
     print('Node', k, 'has connections to', v)
@@ -101,6 +151,11 @@ for k, v in pipes.items():
 zcount = count_zero_connections(pipes)
 print('I count', zcount, 'connections')
 
+gcount = count_groups(pipes)
+print('I count', gcount, 'groups')
+
 pipes = process_file('data/input12.txt')
 zcount = count_zero_connections(pipes)
 print('I count', zcount, 'connections')
+gcount = count_groups(pipes)
+print('I count', gcount, 'groups')
