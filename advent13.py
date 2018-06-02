@@ -180,12 +180,17 @@ not get caught.) The severity of the whole trip is the sum of these values. In t
 
 Given the details of the firewall you've recorded, if you leave immediately, what is the severity of your whole trip?
 
-Answer:
+Answer: 2164
 """
 
 class Scanner:
     """A class representing a scanner"""
-    def __init__(self):
+    def __init__(self, depth: int, range: int) -> None:
+        self.depth = depth
+        self.range = range
+        self.locat = 0
+        self.direc = 1
+
     def advance(self) -> None:
         """Advance the scanner to the next location"""
         self.locat = self.locat + self.direc
@@ -199,3 +204,56 @@ class Scanner:
             if self.locat == -1:
                 self.locat = 1
                 self.direc = 1
+
+    def severity(self) -> int:
+        return self.depth * self.range
+
+    def is_scanner_at_top(self) -> bool:
+        if self.locat == 0:
+            return True
+        else:
+            return False
+
+
+def build_scanners(filename: str) -> dict:
+    "Create a dictionary representing the scanners in the firewall"
+    fw = {}
+    with open(filename) as f:
+        # strip trailing newline off each line
+        lines = [line.rstrip('\n') for line in f]
+        for l in lines:
+            items = l.split()
+            print(items[0][0:-1], items[1])
+            fw[int(items[0][0:-1])] = Scanner(int(items[0][0:-1]), int(items[1]))
+
+    return fw
+
+
+def walk_firewall(firewall: dict) -> int:
+    sev_score = 0
+    last_scanner = max(firewall)
+
+    for curr_level in range(last_scanner+1):
+        # are we caught by a scanner at this level?
+        if curr_level in firewall:
+            scanner = firewall[curr_level]
+            if scanner.is_scanner_at_top():
+                sev_score += scanner.severity()
+
+        # advance all upcoming scanners
+        for k, v in sorted(firewall.items()):
+            if k >= curr_level:
+                v.advance()
+
+    return sev_score
+
+
+filename = "data/test13.txt"
+firewall = build_scanners(filename)
+sev_score = walk_firewall(firewall)
+print('Test severity score is', sev_score, 'was expecting 24')
+
+filename = "data/input13.txt"
+firewall = build_scanners(filename)
+sev_score = walk_firewall(firewall)
+print('Severity score is', sev_score)
