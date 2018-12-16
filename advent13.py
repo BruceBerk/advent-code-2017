@@ -215,6 +215,8 @@ class Scanner:
             return False
 
 
+
+
 def build_scanners(filename: str) -> dict:
     "Create a dictionary representing the scanners in the firewall"
     fw = {}
@@ -223,15 +225,20 @@ def build_scanners(filename: str) -> dict:
         lines = [line.rstrip('\n') for line in f]
         for l in lines:
             items = l.split()
-            print(items[0][0:-1], items[1])
+            #print(items[0][0:-1], items[1])
             fw[int(items[0][0:-1])] = Scanner(int(items[0][0:-1]), int(items[1]))
 
     return fw
 
 
-def walk_firewall(firewall: dict) -> int:
+def walk_firewall(firewall: dict, delay: int) -> int:
     sev_score = 0
     last_scanner = max(firewall)
+
+    # delay for a given number of picoseconds
+    for x in range(delay):
+        for k, v in sorted(firewall.items()):
+            v.advance()
 
     for curr_level in range(last_scanner+1):
         # are we caught by a scanner at this level?
@@ -247,13 +254,76 @@ def walk_firewall(firewall: dict) -> int:
 
     return sev_score
 
+def safe_walk(firewall: dict, delay: int) -> bool:
+    last_scanner = max(firewall)
+
+    # delay for given number of picoseconds
+    for x in range(delay):
+        for k, v in sorted(firewall.items()):
+            v.advance()
+
+    for curr_level in range(last_scanner+1):
+        # are we caught by a scanner at this level?
+        if curr_level in firewall:
+            scanner = firewall[curr_level]
+            if scanner.is_scanner_at_top():
+                return False
+
+        # advance all upcoming scanners
+        for k, v in sorted(firewall.items()):
+            if k >= curr_level:
+                v.advance()
+
+    return True
+
 
 filename = "data/test13.txt"
 firewall = build_scanners(filename)
-sev_score = walk_firewall(firewall)
+
+delay = 0
+sev_score = -1
+while sev_score != 0:
+    run_firewall = firewall
+    sev_score = walk_firewall(run_firewall, delay)
+    print("Delay:", delay, " - sev score is", sev_score)
+    if sev_score != 0:
+        delay += 1
+
 print('Test severity score is', sev_score, 'was expecting 24')
 
 filename = "data/input13.txt"
 firewall = build_scanners(filename)
-sev_score = walk_firewall(firewall)
+sev_score = walk_firewall(firewall, 0)
 print('Severity score is', sev_score)
+
+
+filename = "data/test13.txt"
+firewall = build_scanners(filename)
+
+delay = 0
+found_safe = False
+
+while not found_safe and delay < 32000:
+    run_firewall = build_scanners(filename)
+    found_safe = safe_walk(run_firewall, delay)
+    if found_safe:
+        print("Delay:", delay, " was a safe walk")
+    else:
+        print("Delay:", delay, " was NOT a safe walk")
+    delay += 1
+
+
+filename = "data/input13.txt"
+firewall = build_scanners(filename)
+
+delay = 18500
+found_safe = False
+
+while not found_safe and delay < 32000:
+    run_firewall = build_scanners(filename)
+    found_safe = safe_walk(run_firewall, delay)
+    if found_safe:
+        print("Delay:", delay, " was a safe walk")
+    else:
+        print("Delay:", delay, " was NOT a safe walk")
+    delay += 1

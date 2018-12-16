@@ -1,10 +1,3 @@
-# Advent of Code 2017-10
-# Knot Hash
-#
-# Bruce Berkowicz
-# bruceberk@me.com
-# 12/29/17
-#
 
 """
 --- Day 10: Knot Hash ---
